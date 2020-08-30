@@ -2,3 +2,4 @@
 
 - this
 - proxy
+- apply, bind, call
