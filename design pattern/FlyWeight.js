@@ -1,5 +1,10 @@
 // we will upload  three hundred same type files
-const files = Array.from(Array(300).keys()).map(item => `file-${item+1}.png`)
+const files = Array.from(Array(300).keys()).map(index => {
+  return {
+    fileName: index + 1,
+    fileSize: Math.floor(Math.random() * 100 + 1),
+  }
+})
 
 // use this way will create three hundred object instance it very slow
 files.forEach(item => {
