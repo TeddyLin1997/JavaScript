@@ -63,3 +63,8 @@ type typeDict = {
   readonly privacy: number
 }
 
+// promise object
+function xhr (): Promise<any> {
+  return new Promise(() => {})
+}
+
