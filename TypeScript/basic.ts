@@ -19,11 +19,47 @@ type mathMethods = (num1: number, num2: number) => number
 const add: mathMethods = (num1, num2) => num1 + num2
 
 // 函式雷點
-const method = (options: { name: string }): string => options.name
-// 不會出現錯誤提示
-const obj1 = { name: 'chris', age: 23 }
-// 建立物件 積極註記型別
-const obj2: { name: string } = { name: 'chris', age: 23 }
+type person = { name: string }
+const method = (options: person): string => options.name
 
+const obj1 = { name: 'chris', age: 23 }
+const obj2: person = { name: 'chris', age: 23 }
+
+// 不會出現錯誤提示
 method(obj1)
 method(obj2)
+
+// 物件
+type userInfo = {
+  account: string,
+  password: string,
+  // 非必填屬性
+  birth?: Date,
+  gender?: string,
+}
+
+const userInstance: userInfo = {
+  account: '123',
+  password: '123',
+}
+
+// never => 中斷執行 or 卡住
+const error = () => { throw new Error('123') }
+
+// 複合型別
+type requireInfo = {
+  account: string,
+  password: string,
+}
+type noRequireInfo = {
+  birth?: Date,
+  gender?: string,
+}
+type info = requireInfo & noRequireInfo
+
+// indexable & readonly
+type typeDict = {
+  [prop: string]: number
+  readonly privacy: number
+}
+
