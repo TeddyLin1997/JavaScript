@@ -18,10 +18,9 @@ const locationName = country[country.Taipei]
 type mathMethods = (num1: number, num2: number) => number
 const add: mathMethods = (num1, num2) => num1 + num2
 
-// 函式雷點
+// 函式重點 => 只關注有沒有 name
 type person = { name: string }
 const method = (options: person): string => options.name
-
 const obj = { name: 'chris', age: 23 }
 
 // 不會出現錯誤提示
