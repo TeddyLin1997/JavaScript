@@ -22,12 +22,10 @@ const add: mathMethods = (num1, num2) => num1 + num2
 type person = { name: string }
 const method = (options: person): string => options.name
 
-const obj1 = { name: 'chris', age: 23 }
-const obj2: person = { name: 'chris', age: 23 }
+const obj = { name: 'chris', age: 23 }
 
 // 不會出現錯誤提示
-method(obj1)
-method(obj2)
+method(obj)
 
 // 物件
 type userInfo = {
