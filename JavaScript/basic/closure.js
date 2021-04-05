@@ -21,7 +21,7 @@ function initWallect () {
 const wallect = initWallect()
 wallect.balance() // 10000
 wallect.deposit(500) // 10500
-wallect.withdraw(200) // 8500
+wallect.withdraw(2000) // 8500
 
 
 // closure can use in cache
