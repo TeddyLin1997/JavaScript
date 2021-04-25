@@ -1,14 +1,19 @@
 function Promise (executor) {
-  this.status = 'pending'
+  this.type = {
+    pending: 'pending',
+    fulfilled: 'fulfilled',
+    rejected: 'rejected',
+  }
+  this.status = this.type.pending
   this.data = undefined
   this.onResolvedCallbacks = []
   this.onRejectedCallbacks = []
 
   this.resolve = (value) => {
-    if (this.status === 'pending') {
-      this.status = 'resolved'
+    if (this.status === this.type.pending) {
+      this.status = this.type.fulfilled
       this.data = value
-      // resolve之後 執行then/catch的回調
+      
       while (this.onResolvedCallbacks.length) {
         this.onResolvedCallbacks.shift()(this.data)
       }
@@ -16,10 +21,10 @@ function Promise (executor) {
   }
 
   this.reject = (reason) => {
-    if (this.status === 'pending') {
-      this.status = 'rejected'
+    if (this.status === this.type.pending) {
+      this.status = this.type.rejected
       this.data = reason
-      // reject之後 執行then/catch的回調
+
       while (this.onRejectedCallbacks.length) {
         this.onRejectedCallbacks.shift()(this.data)
       }
@@ -34,12 +39,11 @@ function Promise (executor) {
 }
 
 Promise.prototype.then = function (onResolved, onRejected) {
-  // if (typeof onResolved !== 'function') onResolved = () => this.data
-  // if (typeof onRejected !== 'function') onRejected = () => this.data
+  if (typeof onResolved !== 'function') onResolved = () => this.data
+  if (typeof onRejected !== 'function') onRejected = () => this.data
 
   const nextPromise = new Promise((resolve, reject) => {
-    if (this.status === 'pending') {
-      
+    if (this.status === this.type.pending) {
         // chain feature
         this.onResolvedCallbacks.push(() => {
           queueMicrotask(() => {
@@ -53,16 +57,16 @@ Promise.prototype.then = function (onResolved, onRejected) {
             resolvePromise(result, resolve, reject)
           })
         })
-    } else if (this.status === 'rejected') {
-      reject(onRejected(this.data))
-    } else if (this.status === 'resolved') {
-
-      // use microtask
+    } else if (this.status === this.type.rejected) {
+      queueMicrotask(() => {
+        const result = onRejected(this.data)
+        resolvePromise(result, resolve, reject)
+      })
+    } else if (this.status === this.type.fulfilled) {
       queueMicrotask(() => {
         const result = onResolved(this.data)
         resolvePromise(result, resolve, reject)
       })
-      
     }
   })
 
