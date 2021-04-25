@@ -9,7 +9,9 @@ function Promise (executor) {
       this.status = 'resolved'
       this.data = value
       // resolve之後 執行then/catch的回調
-      this.onResolvedCallbacks.forEach(callback => callback(this.data))
+      while (this.onResolvedCallbacks.length) {
+        this.onResolvedCallbacks.shift()(this.data)
+      }
     }
   }
 
@@ -18,41 +20,66 @@ function Promise (executor) {
       this.status = 'rejected'
       this.data = reason
       // reject之後 執行then/catch的回調
-      this.onRejectedCallbacks.forEach(callback => callback(this.data))
+      while (this.onRejectedCallbacks.length) {
+        this.onRejectedCallbacks.shift()(this.data)
+      }
     }
   }
 
-  // executor可能出錯 因此錯誤時執行reject()
   try {
     executor(this.resolve, this.reject)
   } catch (err) {
-    reject(err)
+    this.reject(err)
   }
 }
 
 Promise.prototype.then = function (onResolved, onRejected) {
-  // onResolved 和 onRejected 只能為函式 否則忽略
-  if (typeof onResolved !== 'function') onResolved = (value) => {}
-  if (typeof onRejected !== 'function') onRejected = (reason) => {}
+  // if (typeof onResolved !== 'function') onResolved = () => this.data
+  // if (typeof onRejected !== 'function') onRejected = () => this.data
 
-  const promise2 = new Promise((resolve, reject) => {
+  const nextPromise = new Promise((resolve, reject) => {
     if (this.status === 'pending') {
-      this.onResolvedCallbacks.push(onResolved)
-      this.onRejectedCallbacks.push(onRejected)
+      
+        // chain feature
+        this.onResolvedCallbacks.push(() => {
+          queueMicrotask(() => {
+            const result = onResolved(this.data)
+            resolvePromise(result, resolve, reject)
+          })
+        })
+        this.onRejectedCallbacks.push(() => {
+          queueMicrotask(() => {
+            const result = onRejected(this.data)
+            resolvePromise(result, resolve, reject)
+          })
+        })
     } else if (this.status === 'rejected') {
       reject(onRejected(this.data))
     } else if (this.status === 'resolved') {
-      resolve(onResolved(this.data))
+
+      // use microtask
+      queueMicrotask(() => {
+        const result = onResolved(this.data)
+        resolvePromise(result, resolve, reject)
+      })
+      
     }
   })
 
-  return promise2
+  return nextPromise
+
+  function resolvePromise(result, resolve, reject) {
+    if (result instanceof Promise) result.then(resolve, reject)
+    else resolve(result)
+  }
 }
 
+
+// test
 const promise = new Promise((resolve, reject) => {
   setTimeout(() => {
     resolve(1)
-  }, 1000); 
+  }, 1000)
 }).then(res => {
   console.log('then1', res)
   return ++res
