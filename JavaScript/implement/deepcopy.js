@@ -1,17 +1,17 @@
 const deepCopy = (target, map = new WeakMap()) => {
-  // map 解決循環引用
-  if (map.get(target)) return target 
-
   if (typeof target === 'object' && target !== null) {
-    map.set(target, true)
     const cloneTarget = Array.isArray(target) ? [] : {}
+
+    // map 解決循環引用
+    if (map.has(target)) return map.get(target )
+    else map.set(target, cloneTarget)
+
     for (let prop in target) {
-      if (target.hasOwnProperty(prop)) {
+      if (Object.hasOwnProperty.call(target, prop)) {
         cloneTarget[prop] = deepCopy(target[prop], map)
       }
     }
+
     return cloneTarget
-  } else {
-    return target
-  }
+  } else return target
 }
