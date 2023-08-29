@@ -3,8 +3,9 @@ Function.prototype.ownApply = function (context, args) {
   // this === row quote function
   const property = Symbol['apply']
   context[property] = this
-  context[property](...args)
+  const result = context[property](...args)
   delete context[property]
+  return result
 }
 
 // Implement your own call
@@ -12,8 +13,9 @@ Function.prototype.ownCall = function (context, ...args) {
   // this === row quote function
   const property = Symbol['call']
   context[property] = this
-  context[property](...args)
+  const result = context[property](...args)
   delete context[property]
+  return result
 }
 
 
